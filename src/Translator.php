@@ -84,17 +84,11 @@ class Translator {
 				case "disabled":
 				case "checked":
 				case "selected":
-					array_push(
-						$xpath,
-						"[@{$currentThreadItem['content']}]"
-					);
+					$xpath[] = "[@{$currentThreadItem['content']}]";
 					break;
 
 				case "text":
-					array_push(
-						$xpath,
-						'[@type="text"]'
-					);
+					$xpath[] = '[@type="text"]';
 					break;
 
 				case "contains":
@@ -102,10 +96,7 @@ class Translator {
 						continue 3;
 					}
 
-					array_push(
-						$xpath,
-						"[contains(text(),$specifier)]"
-					);
+					$xpath[] = "[contains(text(),$specifier)]";
 					break;
 
 				case "first-child":
@@ -129,10 +120,7 @@ class Translator {
 						);
 					}
 					else {
-						array_push(
-							$xpath,
-							"[$specifier]"
-						);
+						$xpath[] = "[$specifier]";
 					}
 					break;
 				case "nth-of-type":
@@ -144,56 +132,39 @@ class Translator {
 					$previous = $xpath[$prev];
 
 					if(substr($previous, -1, 1) === "]") {
-						array_push(
-							$xpath,
-							"[$specifier]"
-						);
+						$xpath[] = "[$specifier]";
 					}
 					else {
-						array_push(
-							$xpath,
-							"[$specifier]"
-						);
+						$xpath[] = "[$specifier]";
 					}
 					break;
 				}
 				break;
 
 			case "child":
-				array_push($xpath, "/");
+				$xpath[] = "/";
                 $hasElement = false;
 				break;
 
 			case "id":
-				array_push(
-					$xpath,
-					($hasElement ? '' : '*')
-					. "[@id='{$currentThreadItem['content']}']"
-				);
+				$xpath[] = ($hasElement ? '' : '*') . "[@id='{$currentThreadItem['content']}']";
                 $hasElement = true;
 				break;
 
 			case "class":
 				// https://devhints.io/xpath#class-check
-				array_push(
-					$xpath,
-                    ($hasElement ? '' : '*')
-					. "[contains(concat(' ',normalize-space(@class),' '),' {$currentThreadItem['content']} ')]"
-				);
+				$xpath[] = ($hasElement ? '' : '*') . "[contains(concat(' ',normalize-space(@class),' '),' {$currentThreadItem['content']} ')]";
                 $hasElement = true;
 				break;
 
 			case "sibling":
-				array_push(
-					$xpath,
-					"/following-sibling::*[1]/self::"
-				);
+				$xpath[] = "/following-sibling::*[1]/self::";
                 $hasElement = false;
 				break;
 
 			case "attribute":
 				if(!$hasElement) {
-					array_push($xpath, "*");
+					$xpath[] = "*";
                     $hasElement = true;
 				}
 
@@ -204,10 +175,7 @@ class Translator {
 
 				if(!$detailType
 				|| $detailType["type"] !== "attribute_equals") {
-					array_push(
-						$xpath,
-						"[@{$currentThreadItem['content']}]"
-					);
+					$xpath[] = "[@{$currentThreadItem['content']}]";
 					continue 2;
 				}
 
@@ -219,25 +187,14 @@ class Translator {
 				$equalsType = $detailType["content"];
 				switch ($equalsType) {
 				case self::EQUALS_EXACT:
-					array_push(
-						$xpath,
-						"[@{$currentThreadItem['content']}=\"{$valueString}\"]"
-					);
+					$xpath[] = "[@{$currentThreadItem['content']}=\"{$valueString}\"]";
 					break;
 
 				case self::EQUALS_CONTAINS:
 					throw new NotYetImplementedException();
 
 				case self::EQUALS_CONTAINS_WORD:
-					array_push(
-						$xpath,
-						"["
-						. "contains("
-						. "concat(\" \",@{$currentThreadItem['content']},\" \"),"
-						. "concat(\" \",\"{$valueString}\",\" \")"
-						. ")"
-						. "]"
-					);
+					$xpath[] = "[" . "contains(" . "concat(\" \",@{$currentThreadItem['content']},\" \")," . "concat(\" \",\"{$valueString}\",\" \")" . ")" . "]";
 					break;
 
 				case self::EQUALS_STARTS_WITH_OR_STARTS_WITH_HYPHENATED:
@@ -247,22 +204,13 @@ class Translator {
 					throw new NotYetImplementedException();
 
 				case self::EQUALS_ENDS_WITH:
-					array_push(
-						$xpath,
-						"["
-						. "substring("
-						. "@{$currentThreadItem['content']},"
-						. "string-length(@{$currentThreadItem['content']}) - "
-						. "string-length(\"{$valueString}\") + 1)"
-						. "=\"{$valueString}\""
-						. "]"
-					);
+					$xpath[] = "[" . "substring(" . "@{$currentThreadItem['content']}," . "string-length(@{$currentThreadItem['content']}) - " . "string-length(\"{$valueString}\") + 1)" . "=\"{$valueString}\"" . "]";
 					break;
 				}
 				break;
 
 			case "descendant":
-				array_push($xpath, "//");
+				$xpath[] = "//";
                 $hasElement = false;
 				break;
 			}
@@ -318,7 +266,7 @@ class Translator {
 						$set[$i]["detail"] = [];
 					}
 
-					array_push($set[$i]["detail"], $toSet);
+					$set[$i]["detail"][] = $toSet;
 				}
 			}
 		}
